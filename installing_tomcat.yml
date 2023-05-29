@@ -1,0 +1,39 @@
+---
+- name: My test playbook
+  hosts: all
+  become: true
+  tasks:
+  - name: Installing Java on RedHat
+    yum:
+      name: java
+      state: present
+    when: ansible_os_family == "RedHat"
+
+  - name: Installing Java on Debian
+    apt:
+      name: default-jdk
+      state: present
+    when: ansible_os_family == "Debian"
+
+  - name: Download tomcat
+    get_url:
+      url: https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.89/bin/apache-tomcat-8.5.89.tar.gz
+      dest: /opt
+
+  - name: Extract tomcat tar file 
+    unarchive:
+     src: /opt/apache-tomcat-8.5.89.tar.gz
+     dest: /opt
+     remote_src: yes
+
+  - name: Change startup file permi
+    file:
+     path: /opt/apache-tomcat-8.5.89/bin/startup.sh
+     mode: 0777
+
+  - name: Execute .sh file to start tomcat service
+    shell: nohup ./startup.sh
+    args:
+      chdir: /opt/apache-tomcat-8.5.89/bin 
+        
+
